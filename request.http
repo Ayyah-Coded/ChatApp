@@ -1,4 +1,4 @@
-@baseGateway = http://localhost:8501
+@baseGateway = http://localhost:9501
 
 
 ### Auth Register

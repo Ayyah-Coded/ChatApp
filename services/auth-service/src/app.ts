@@ -10,7 +10,7 @@ export const createApp = (): Application => {
 
   app.use(helmet());
   app.use(cors({
-    origin: "*",
+    origin: "http://localhost:9502",
     credentials: true
   }));
   app.use(express.json());
