@@ -1,9 +1,9 @@
-import { loginUser, refreshTokens, registerUser, revokeTokens,
-} from '@/controllers/auth.controller';
-import { loginSchema, refreshSchema, registerSchema, revokeSchema } from '@/validation/auth.schema';
+import { Router } from 'express';
 import { asyncHandler, validateRequest } from 'common';
 
-import { Router } from 'express';
+import { loginUser, refreshTokens, registerUser, revokeTokens} from '@/controllers/auth.controller';
+import { loginSchema, refreshSchema, registerSchema, revokeSchema } from '@/validation/auth.schema';
+
 
 export const authRouter: Router = Router();
 

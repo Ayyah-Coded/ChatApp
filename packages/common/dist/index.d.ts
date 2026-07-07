@@ -10,4 +10,5 @@ export * from "./events/event-types.js";
 export * from "./http/async-handler.js";
 export * from "./http/internal-auth.js";
 export * from "./http/validate-request.js";
+export * from "./http/auth.js";
 //# sourceMappingURL=index.d.ts.map

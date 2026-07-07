@@ -1,13 +1,13 @@
 import { z } from 'common';
 
 export const registerSchema = z.object({
-  email: z.string().email(),
+  email: z.string(),
   password: z.string().min(8),
   displayName: z.string().min(3).max(30),
 });
 
 export const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string(),
   password: z.string().min(8),
 });
 
@@ -16,5 +16,5 @@ export const refreshSchema = z.object({
 });
 
 export const revokeSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string(),
 });

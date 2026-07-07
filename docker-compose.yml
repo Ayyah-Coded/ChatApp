@@ -3,7 +3,7 @@ services:
     image: rabbitmq:3-management
     container_name: blipchat-rabbitmq
     ports:
-      - "${RABBITMQ_PORT:-9550}:5672"
+      - "${RABBITMQ_PORT:-12001}:5672"
       - "${RABBITMQ_MANAGEMENT_PRT:-15672}:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-guest}
@@ -26,12 +26,20 @@ services:
     networks:
       - blipchat-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${AUTH_DB_ROOT_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${AUTH_DB_ROOT_PASSWORD:-root_password}"]
       interval: 10s
       timeout: 5s
       retries: 5
   
     restart: unless-stopped    
+
+  redis:
+    image: redis:7
+    container_name: blipchat-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - blipchat-network
 
 
   chat-database:

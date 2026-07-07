@@ -21,7 +21,6 @@
   "dependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "@types/helmet": "^4.0.0",
     "amqplib": "^2.0.1",
     "common": "workspace:^",
     "cors": "^2.8.6",
