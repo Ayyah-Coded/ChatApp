@@ -25,9 +25,12 @@ export const connectToDatabase = async () => {
 export const initializeDatabase = async () => {
   await connectToDatabase();
 
-  const syncOptions = env.NODE_ENV === 'development' ? {} : { alter: true };
-  await sequelize.sync(syncOptions);
-  logger.info('Database sync');
+  if (env.NODE_ENV === 'development') {
+    await sequelize.sync();
+    logger.info('Database sync (development, non-destructive)');
+  } else {
+    logger.info('Skipping automatic sync outside development; use migrations to manage schema.');
+  }
 };
 
 export const closeDatabase = async () => {

@@ -1,11 +1,12 @@
 import type { UserRepository } from '@/repositories/user.repositories';
 import type { CreateUserInput, User } from '@/types/user';
 
-import { sequelize } from '@/db';
+
 import { userRepository } from '@/repositories/user.repositories';
 import { AuthUserRegisteredPayload, HttpError } from 'common';
 import { UniqueConstraintError } from 'sequelize';
 import { publishUserCreatedEvent } from '@/messaging/event-publisher';
+import { logger } from '@/utils/logger';
 
 class UserService {
   constructor(private readonly repository: UserRepository) {}
@@ -32,6 +33,8 @@ class UserService {
         displayName: user.displayName,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
+      }).catch((error) => {
+        logger.error({ err: error }, 'Failed to publish user.created event after user creation');
       });
 
       return user;
@@ -64,6 +67,8 @@ class UserService {
       displayName: user.displayName,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
+    }).catch((error) => {
+      logger.error({ err: error }, 'Failed to publish user.created event after auth sync');
     });
     return user;
   }

@@ -13,7 +13,15 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z.string().min(32),
   JWT_REFRESH_EXPIRES_IN: z.string().default("30d"),
   RABBITMQ_URL: z.string(),
-  INTERNAL_AUTH_TOKEN: z.string().min(32)
+  INTERNAL_AUTH_TOKEN: z.string().min(32),
+  ALLOWED_ORIGINS: z
+    .string()
+    .transform(value =>
+      value
+        .split(",")
+        .map(origin => origin.trim())
+        .filter(Boolean)
+    )
 });
 
 type EnvType = z.infer<typeof envSchema>

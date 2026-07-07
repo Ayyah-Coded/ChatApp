@@ -1,5 +1,4 @@
 import { loadEnv } from "common";
-console.log("cwd =", process.cwd());
 loadEnv();
 
 import { createEnv, z } from 'common';
@@ -9,7 +8,15 @@ const envSchema = z.object({
   USER_SERVICE_PORT: z.coerce.number().int().min(0).max(65_535).default(9503),
   USER_DB_URL: z.string(),
   RABBITMQ_URL: z.string().optional(),
-  INTERNAL_API_TOKEN: z.string().min(32)
+  INTERNAL_API_TOKEN: z.string().min(32),
+  ALLOWED_ORIGINS: z
+    .string()
+    .transform(value =>
+      value
+        .split(",")
+        .map(origin => origin.trim())
+        .filter(Boolean)
+    )
 });
 
 type EnvType = z.infer<typeof envSchema>;

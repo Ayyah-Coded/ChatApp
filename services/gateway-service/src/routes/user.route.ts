@@ -9,4 +9,4 @@ export const userRouter: Router = Router();
 userRouter.get('/', requireAuth, asyncHandler(getAllUsers));
 userRouter.get('/search', requireAuth, validateRequest({ query: searchUsersQuerySchema }), asyncHandler(searchUsers));
 userRouter.get('/:id', requireAuth, validateRequest({ params: userIdParamsSchema }), asyncHandler(getUser));
-userRouter.post('/', validateRequest({ body: createUserSchema }), asyncHandler(createUser));
+userRouter.post('/', requireAuth, validateRequest({ body: createUserSchema }), asyncHandler(createUser));

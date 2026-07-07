@@ -80,7 +80,7 @@ export const startAuthEventConsumer = async () => {
   logger.info('Auth event consumer started');
 };
 
-export const stopAuthEventConsume = async () => {
+export const stopAuthEventConsumer = async () => {
   try {
     const ch = channel;
     if (ch && consumerTag) {

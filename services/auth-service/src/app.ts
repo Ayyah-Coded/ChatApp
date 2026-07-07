@@ -12,7 +12,7 @@ export const createApp = (): Application => {
 
   app.use(helmet());
   app.use(cors({
-    origin: "http://localhost:9502",
+    origin: env.ALLOWED_ORIGINS,
     credentials: true
   }));
   

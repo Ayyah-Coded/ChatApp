@@ -6,6 +6,10 @@ import { initializeDatabase } from '@/db/sequelize';
 import { startAuthEventConsumer } from '@/messaging/auth-consumer';
 import { initMessaging } from '@/messaging/event-publisher';
 
+import { closeDatabase } from '@/db/sequelize';
+import { closeMessaging } from '@/messaging/event-publisher';
+import { stopAuthEventConsumer } from '@/messaging/auth-consumer';
+
 const main = async () => {
   try {
     await initializeDatabase();
@@ -23,7 +27,7 @@ const main = async () => {
 
     const shutdown = () => {
       logger.info('Shutting down user service...');
-      Promise.all([])
+      Promise.all([stopAuthEventConsumer(), closeMessaging(), closeDatabase()])
         .catch((error: unknown) => {
           logger.error({ error }, 'Error during shutdown tasks');
         })

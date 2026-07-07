@@ -303,6 +303,8 @@ importers:
         specifier: ^9.0.10
         version: 9.0.10
 
+  services/chat-service: {}
+
   services/gateway-service:
     dependencies:
       axios:
