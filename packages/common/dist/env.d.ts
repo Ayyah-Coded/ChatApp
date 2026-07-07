@@ -1,9 +1,9 @@
-import { z, type ZodTypeAny } from "zod";
+import { z } from "zod";
 interface EnvOptions {
     source?: NodeJS.ProcessEnv;
     serviceName?: string;
 }
-export declare const createEnv: <TSchema extends ZodTypeAny>(schema: TSchema, options?: EnvOptions) => z.infer<TSchema>;
-export type EnvSchema<TShape extends ZodTypeAny> = TShape;
+export declare const createEnv: <TSchema extends z.ZodTypeAny>(schema: TSchema, options?: EnvOptions) => z.infer<TSchema>;
+export type EnvSchema<TSchema extends z.ZodTypeAny> = TSchema;
 export {};
 //# sourceMappingURL=env.d.ts.map

@@ -1,11 +1,11 @@
-import { z, ZodAny } from "zod";
+import { z } from "zod";
 
 interface EnvOptions {
   source?: NodeJS.ProcessEnv;
   serviceName?: string;
 }
 
-export const createEnv = <TSchema extends ZodAny>(
+export const createEnv = <TSchema extends z.ZodTypeAny>(
   schema: TSchema,
   options: EnvOptions = {}
 ): z.infer<TSchema> => {
@@ -14,13 +14,12 @@ export const createEnv = <TSchema extends ZodAny>(
   const parsed = schema.safeParse(source);
 
   if (!parsed.success) {
-    const formatedErrors = parsed.error.format();
     throw new Error(
-      `[${serviceName}] Environment variable validation failed: ${JSON.stringify(formatedErrors)}`
+      `[${serviceName}] Environment variable validation failed:\n${JSON.stringify(parsed.error)}`
     );
   }
 
   return parsed.data;
 };
 
-export type EnvSchema<TShape extends ZodAny> = TShape;
+export type EnvSchema<TSchema extends z.ZodTypeAny> = TSchema;

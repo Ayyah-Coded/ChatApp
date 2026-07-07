@@ -1,10 +1,21 @@
-// packages/common/src/load-env.ts
-
 import dotenv from "dotenv";
-import path from "node:path";
+import { join } from "node:path";
 
-export function loadEnv(service: string) {
-  dotenv.config({
-    path: path.resolve(process.cwd(), `services/${service}/.env`),
+let loaded = false;
+
+export function loadEnv(): void {
+   if (loaded) return;
+
+  const envPath = join(process.cwd(), ".env");
+
+  const result = dotenv.config({
+    path: envPath,
+    override: true,
   });
+
+  if (result.error) {
+    throw new Error(`Unable to load .env file: ${envPath}`);
+  }
+
+  loaded = true;
 }
