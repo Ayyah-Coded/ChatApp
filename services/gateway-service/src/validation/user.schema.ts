@@ -10,7 +10,7 @@ export const userIdParamsSchema = z.object({
 });
 
 const excludeSchema = z.union([
-  z.array(z.string()),
+  z.array(z.string().uuid()),
   z
     .string()
     .transform((value) => [value])

@@ -43,9 +43,8 @@ export const listConversationHandler: RequestHandler = asyncHandler(async (req, 
   }
 
   const conversations = await conversationService.listConversation({ participantId: user.id });
-  res.status(201).json({ data: conversations });
+  res.status(200).json({ data: conversations });
 });
-
 export const getConversationHandler: RequestHandler = asyncHandler(async (req, res) => {
   const user = getAuthenticatedUser(req);
   const conversationId = parsedConversation(req.params);

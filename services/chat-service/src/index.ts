@@ -4,7 +4,7 @@ import { env } from './config/env';
 import { logger } from './utils/logger';
 import { closeMongoClient, getMongoClient } from './clients/mongo.client';
 import { closeRedis, connectRedis } from './clients/redis.client';
-import { startConsumers } from './messaging/rabbitmq.consumer';
+import { startConsumers, stopConsumers } from './messaging/rabbitmq.consumer';
 
 
 
@@ -23,7 +23,7 @@ const main = async () => {
 
     const shutdown = () => {
       logger.info('Shutting down chat service...');
-      Promise.all([closeRedis(), closeMongoClient()])
+      Promise.all([closeRedis(), closeMongoClient(), stopConsumers()])
         .catch((error: unknown) => {
           logger.error({ error }, 'Error during shutdown tasks');
         })
@@ -31,7 +31,6 @@ const main = async () => {
           server.close(() => process.exit(0));
         });
     };
-
     process.on('SIGINT', shutdown);
     process.on('SIGTERM', shutdown);
   } catch (error) {

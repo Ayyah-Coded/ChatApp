@@ -302,6 +302,9 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.10
         version: 9.0.10
+      tsc-alias:
+        specifier: ^1.9.0
+        version: 1.9.0
 
   services/chat-service:
     dependencies:
@@ -339,6 +342,9 @@ importers:
       '@types/express':
         specifier: ^5.0.6
         version: 5.0.6
+      tsc-alias:
+        specifier: ^1.9.0
+        version: 1.9.0
 
   services/gateway-service:
     dependencies:
@@ -376,6 +382,9 @@ importers:
       jsonwebtoken:
         specifier: ^9.0.3
         version: 9.0.3
+      tsc-alias:
+        specifier: ^1.9.0
+        version: 1.9.0
 
   services/user-service:
     dependencies:
@@ -409,6 +418,10 @@ importers:
       sequelize:
         specifier: ^6.37.8
         version: 6.37.8(pg@8.22.0)
+    devDependencies:
+      tsc-alias:
+        specifier: ^1.9.0
+        version: 1.9.0
 
 packages:
 

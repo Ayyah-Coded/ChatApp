@@ -11,7 +11,7 @@ FROM base AS deps
 
 # Copy workspace configs
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY tsconfig.base.json tsconfig.json ./
+COPY tsconfig-base.json tsconfig.json ./
 
 # Copy package/json file for all needed packages
 COPY packages/common/package.json ./packages/common/
@@ -19,6 +19,7 @@ COPY services/auth-service/package.json ./services/auth-service/
 
 #Install Dependencies
 RUN pnpm install --frozen-lockfile
+RUN apk add --no-cache wget
 
 
 FROM deps AS builder
@@ -34,7 +35,9 @@ RUN pnpm --filter common build
 RUN pnpm --filter auth-service build
 
 
-FROM node:22-alpine AS prodcution
+FROM node:22-alpine AS production
+
+RUN apk add --no-cache wget
 
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@11.9.0 --activate
@@ -47,7 +50,7 @@ WORKDIR /app
 
 # Copy workspace configuration
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY tsconfig.base.json ./
+COPY tsconfig-base.json ./
 
 # Copy package.json files
 COPY packages/common/package.json ./packages/common/

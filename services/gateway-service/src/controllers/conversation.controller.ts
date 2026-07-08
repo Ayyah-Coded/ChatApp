@@ -18,7 +18,7 @@ export const createConversationHandler: RequestHandler = asyncHandler(async (req
   const uniqueParticipantIds = Array.from(new Set([...payload.participantIds, user.id]));
 
   if (uniqueParticipantIds.length < 2) {
-    throw new HttpError(400, 'Conversation must atleast include one other participant');
+    throw new HttpError(400, 'Conversation must at least include one other participant');
   }
 
   const conversation = await chatProxyService.createConversation(user.id, {

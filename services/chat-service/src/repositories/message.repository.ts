@@ -52,7 +52,7 @@ export const messageRepository = {
       conversationId,
     };
     if (options.after) {
-      query.createdAt = { $gt: options.after };
+      query.createdAt = { $gt: new Date(options.after) };
     }
 
     const cursor = db
@@ -64,7 +64,6 @@ export const messageRepository = {
     const messages = await cursor.toArray();
     return messages.map((doc) => toMessage(doc));
   },
-
   async findById(messageId: string): Promise<Message | null> {
     const client = await getMongoClient();
     const db = client.db();

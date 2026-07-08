@@ -10,6 +10,11 @@ import { getMongoClient } from '@/clients/mongo.client';
 const CONVERSATIONS_COLLECTION = 'conversations';
 const MESSAGES_COLLECTION = 'messages';
 
+const isRemoveAllAllowed = (): boolean => {
+  const explicitOverride = process.env.ALLOW_CONVERSATION_WIPE === 'true';
+  return process.env.NODE_ENV === 'test' || explicitOverride;
+};
+
 const toConversation = (doc: WithId<Document>): Conversation => ({
   id: String(doc._id),
   title: typeof doc.title === 'string' ? doc.title : null,
@@ -54,6 +59,9 @@ export const conversationRepository = {
   async findSummaries(filter: ConversationFilter): Promise<ConversationSummary[]> {
     const client = await getMongoClient();
     const db = client.db();
+    if (!filter.participantId) {
+      return [];
+    }
     const cursor = db
       .collection(CONVERSATIONS_COLLECTION)
       .find({ participantIds: filter.participantId })
@@ -61,7 +69,6 @@ export const conversationRepository = {
     const results = await cursor.toArray();
     return results.map((doc) => toConversationSummary(doc));
   },
-
   async touchConversation(conversationId: string, preview: string): Promise<void> {
     const client = await getMongoClient();
     const db = client.db();
@@ -78,6 +85,12 @@ export const conversationRepository = {
   },
 
   async removeAll(): Promise<void> {
+    if (!isRemoveAllAllowed()) {
+      throw new Error(
+        'ConversationRepository.removeAll is disabled outside a test-safe context. Set NODE_ENV=test or ALLOW_CONVERSATION_WIPE=true to enable it.',
+      );
+    }
+
     const client = await getMongoClient();
     const db = client.db();
     await Promise.all([

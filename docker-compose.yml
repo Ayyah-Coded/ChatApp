@@ -3,13 +3,20 @@ services:
     image: rabbitmq:3-management
     container_name: blipchat-rabbitmq
     ports:
-      - "${RABBITMQ_PORT:-12001}:5672"
-      - "${RABBITMQ_MANAGEMENT_PRT:-15672}:15672"
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-guest}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
     networks:
       - blipchat-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
 
   auth-database:
     image: mysql:8.0
@@ -20,7 +27,7 @@ services:
       MYSQL_PASSWORD: ${AUTH_DB_PASSWORD:-blipchat_auth_password}
       MYSQL_ROOT_PASSWORD: ${AUTH_DB_ROOT_PASSWORD:-root_password}
     ports:
-      - "${AUTH_DB_PORT:-8206}:3306"
+      - "${AUTH_DB_PORT:-8207}:3306"
     volumes:
       - auth-db-data:/var/lib/mysql
     networks:
@@ -29,8 +36,7 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${AUTH_DB_ROOT_PASSWORD:-root_password}"]
       interval: 10s
       timeout: 5s
-      retries: 5
-  
+      retries: 5  
     restart: unless-stopped    
 
   redis:
@@ -40,6 +46,12 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     networks:
       - blipchat-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
 
   chat-database:
@@ -54,28 +66,160 @@ services:
       - mongo-db-data:/data/db
     networks:
       - blipchat-network
-
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
   user-database:
     image: postgres:16
     container_name: blipchat-user-db
     environment:
-      - POSTGRES_DB=${USER_DB_NAME:-blipchat_user-service}
+      - POSTGRES_DB=${USER_DB_NAME:-blipchat_user_service}
       - POSTGRES_USER=${USER_DB_USER:-blipchat_user}
       - POSTGRES_PASSWORD=${USER_DB_PASSWORD:-blipchat_password}
     ports:
-      - "${USER_DB_PORT:-8207}:5432"
+      - "${USER_DB_PORT:-8206}:5432"
     volumes:
       - user-db-data:/var/lib/postgresql/data
     networks:
       - blipchat-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${USER_DB_USER:-blipchat_user} -d ${USER_DB_NAME:-blipchat_user-service}"]
+      test: ["CMD-SHELL", "pg_isready -U ${USER_DB_USER:-blipchat_user} -d ${USER_DB_NAME:-blipchat_user_service}"]
       interval: 10s
       timeout: 5s
-      retries: 5
-  
+      retries: 5  
     restart: unless-stopped
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth-service/Dockerfile
+    container_name: blipchat-auth-service
+    ports:
+      - "${AUTH_SERVICE_PORT:-9501}:9501"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT:-9501}
+      AUTH_DB_URL: mysql://${AUTH_DB_USER:-blipchat_auth_user}:${AUTH_DB_PASSWORD:-blipchat_auth_password}@auth-database:3306/${AUTH_DB_NAME:-blipchat_auth_service}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-30d}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@blipchat-rabbitmq:5672
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN}
+    depends_on:
+      auth-database:
+        condition: service_healthy
+      blipchat-rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9501/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped  
+    networks:
+      - blipchat-network
+
+
+  chat-service:
+    build:
+      context: .
+      dockerfile: services/chat-service/Dockerfile
+    container_name: blipchat-chat-service
+    ports:
+      - "${CHAT_SERVICE_PORT:-9504}:9504"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      CHAT_SERVICE_PORT: ${CHAT_SERVICE_PORT:-9504}
+      MONGO_URL: mongodb://root:password@chat-database:27017/?authSource=admin
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://guest:guest@blipchat-rabbitmq:5672
+      JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN}
+    depends_on:
+      chat-database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      blipchat-rabbitmq:
+        condition: service_healthy
+    networks:
+      - blipchat-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9504/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+  
+  
+  gateway-service:
+    build:
+      context: .
+      dockerfile: services/gateway-service/Dockerfile
+    container_name: blipchat-gateway-service
+    ports:
+      - "${GATEWAY_PORT:-9502}:9502"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      GATEWAY_PORT: ${GATEWAY_PORT:-9502}
+      AUTH_SERVICE_URL: http://auth-service:9501
+      CHAT_SERVICE_URL: http://chat-service:9504
+      USER_SERVICE_URL: http://user-service:9503
+      JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN}
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      chat-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    networks:
+      - blipchat-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9502/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+
+  user-service:
+    build:
+      context: .
+      dockerfile: services/user-service/Dockerfile
+    container_name: blipchat-user-service
+    ports:
+      - "${USER_SERVICE_PORT:-9503}:9503"
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      USER_SERVICE_PORT: ${USER_SERVICE_PORT:-9503}
+      USER_DB_URL: postgres://${USER_DB_USER:-blipchat_user}:${USER_DB_PASSWORD:-blipchat_password}@user-database:5432/${USER_DB_NAME:-blipchat_user_service}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@blipchat-rabbitmq:5672
+      INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN}
+    depends_on:
+      user-database:
+        condition: service_healthy
+      blipchat-rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9503/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped  
+    networks:
+      - blipchat-network
+
 
 volumes:
   auth-db-data:

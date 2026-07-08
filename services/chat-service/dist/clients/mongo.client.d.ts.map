@@ -1,0 +1,1 @@
+{"version":3,"file":"mongo.client.d.ts","sourceRoot":"","sources":["../../src/clients/mongo.client.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,WAAW,EAAE,MAAM,SAAS,CAAC;AAOtC,eAAO,MAAM,cAAc,QAAa,OAAO,CAAC,WAAW,CAgB1D,CAAC;AACF,eAAO,MAAM,gBAAgB,qBAQ5B,CAAC"}

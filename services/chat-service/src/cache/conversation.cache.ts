@@ -22,27 +22,39 @@ const deserialize = (raw: string): Conversation => {
     ...parsed,
     createdAt: new Date(parsed.createdAt),
     updatedAt: new Date(parsed.updatedAt),
+    lastMessageAt: parsed.lastMessageAt ? new Date(parsed.lastMessageAt as unknown as string) : null,
   };
 };
-
 export const conversationCache = {
   async get(conversationId: string): Promise<Conversation | null> {
-    const redis = getRedisClient();
-    const payload = await redis.get(`${CACHE_PREFIX}${conversationId}`);
-    return payload ? deserialize(payload) : null;
+    try {
+      const redis = getRedisClient();
+      const payload = await redis.get(`${CACHE_PREFIX}${conversationId}`);
+      return payload ? deserialize(payload) : null;
+    } catch {
+      return null;
+    }
   },
 
   async set(conversation: Conversation): Promise<void> {
-    const redis = getRedisClient();
-    await redis.setex(
-      `${CACHE_PREFIX}${conversation.id}`,
-      CACHE_TTL_SECONDS,
-      serialize(conversation),
-    );
+    try {
+      const redis = getRedisClient();
+      await redis.setex(
+        `${CACHE_PREFIX}${conversation.id}`,
+        CACHE_TTL_SECONDS,
+        serialize(conversation),
+      );
+    } catch {
+      // Ignore Redis cache write failures and fall back to the repository path.
+    }
   },
 
   async delete(conversationId: string): Promise<void> {
-    const redis = getRedisClient();
-    await redis.del(`${CACHE_PREFIX}${conversationId}`);
+    try {
+      const redis = getRedisClient();
+      await redis.del(`${CACHE_PREFIX}${conversationId}`);
+    } catch {
+      // Ignore Redis cache deletion failures.
+    }
   },
 };

@@ -29,8 +29,14 @@ export const startConsumers = async () => {
 
   const conn = await connect(env.RABBITMQ_URL);
   connection = conn;
+
+  conn.on('error', (err) => logger.error({ err }, 'RabbitMQ connection error'));
+  conn.on('close', () => logger.error('RabbitMQ connection closed unexpectedly'));
+
   const ch = await conn.createChannel();
   channel = ch;
+
+  ch.on('error', (err) => logger.error({ err }, 'RabbitMQ channel error'));
 
   await ch.assertExchange(USER_EVENTS_EXCHANGE, 'topic', { durable: true });
   const queue = await ch.assertQueue(EVENT_QUEUE, { durable: true });
@@ -48,7 +54,7 @@ export const startConsumers = async () => {
       ch.ack(message);
     })().catch((error: unknown) => {
       logger.error({ err: error }, 'Failed to process event');
-      ch.nack(message, false, false);
+      ch.nack(message, false, true);
     });
   };
 

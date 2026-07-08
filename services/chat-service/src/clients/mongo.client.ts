@@ -3,26 +3,31 @@ import { MongoClient } from 'mongodb';
 import { env } from '@/config/env';
 import { logger } from '@/utils/logger';
 
-let client: MongoClient | null = null;
+let clientPromise: Promise<MongoClient> | null = null;
 
 export const getMongoClient = async (): Promise<MongoClient> => {
-  if (client) {
-    return client;
+  if (!clientPromise) {
+    const newClient = new MongoClient(env.MONGO_URL);
+    clientPromise = newClient
+      .connect()
+      .then(() => {
+        logger.info('MongoDB connection established');
+        return newClient;
+      })
+      .catch((error) => {
+        clientPromise = null;
+        throw error;
+      });
   }
 
-  const mongoUrl = env.MONGO_URL;
-  client = new MongoClient(mongoUrl);
-  await client.connect();
-  logger.info('MongoDB connection established');
-
-  return client;
+  return clientPromise;
 };
-
 export const closeMongoClient = async () => {
-  if (!client) {
+  if (!clientPromise) {
     return;
   }
-  await client.close();
+  const mongoClient = await clientPromise;
+  await mongoClient.close();
   logger.info('MongoDB connection closed');
-  client = null;
+  clientPromise = null;
 };
