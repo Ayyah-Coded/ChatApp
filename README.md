@@ -1,194 +1,59 @@
-# 1. Project Overview
-
 # BlipChat
 
-> A scalable, event-driven microservices chat platform built with **Node.js**, **TypeScript**, **Express**, **RabbitMQ**, **Redis**, **MongoDB**, and **PostgreSQL**, designed using modern distributed system principles.
+> A scalable, event-driven microservices chat platform built with **Node.js**, **TypeScript**, **Express**, **RabbitMQ**, **Redis**, **MongoDB**, and **PostgreSQL**.
 
-BlipChat is a production-oriented backend system that demonstrates how modern messaging platforms can be architected using independently deployable microservices, asynchronous communication, centralized API routing, and shared internal libraries.
+BlipChat is a production-oriented backend system that shows how modern messaging platforms can be built using independently deployable services, asynchronous messaging, a centralized API gateway, and shared internal libraries — the same patterns used by engineering teams at companies like Netflix, Uber, Spotify, and Meta.
 
-Unlike traditional monolithic applications, BlipChat separates business capabilities into autonomous services, allowing each component to evolve, scale, and deploy independently while communicating through secure APIs and event-driven messaging.
+Rather than a simple CRUD app, BlipChat is a hands-on exploration of:
 
-The project focuses on real-world backend engineering concepts, including:
-
-- Distributed systems architecture
-- Event-driven communication
-- Microservices design
-- JWT-based authentication
-- API Gateway pattern
-- Service-to-service communication
-- Shared internal packages
-- Database isolation
-- Redis caching
-- Docker-based deployment
-
-Rather than serving as a simple CRUD application, BlipChat demonstrates architectural patterns commonly adopted by engineering teams at companies such as **Netflix, Uber, Spotify, Amazon, and Meta**, making it an excellent showcase of scalable backend engineering practices.
+- Distributed systems & microservices architecture
+- Event-driven communication (RabbitMQ)
+- JWT-based authentication & the API Gateway pattern
+- Service-to-service communication with database-per-service isolation
+- Redis caching, shared internal packages, and Docker-based deployment
 
 ---
 
-## Why BlipChat?
+## Table of Contents
 
-Modern software systems rarely operate as a single application.
-
-As products grow, separating business capabilities into independent services provides significant advantages in scalability, maintainability, and resilience.
-
-BlipChat was built to explore these production-ready architectural principles while demonstrating how distributed systems can be designed using modern backend technologies.
-
-### Core Objectives
-
-- Build a scalable microservices architecture
-- Demonstrate asynchronous event-driven communication
-- Apply clean service boundaries
-- Showcase production-ready backend practices
-- Improve maintainability through shared libraries
-- Enable independent deployment and scaling
-
----
-
-# 2. Key Features
-
-BlipChat combines modern backend technologies with production-oriented architectural patterns to deliver a scalable and maintainable messaging platform.
+1. [Key Features](#key-features)
+2. [System Architecture](#system-architecture)
+3. [Technology Stack](#technology-stack)
+4. [Monorepo Structure](#monorepo-structure)
+5. [Services & Packages](#services--packages)
+6. [Authentication & Security](#authentication--security)
+7. [Messaging Architecture (RabbitMQ)](#messaging-architecture-rabbitmq)
+8. [Database Design](#database-design)
+9. [Redis Architecture](#redis-architecture)
+10. [API Documentation](#api-documentation)
+11. [Getting Started](#getting-started)
+12. [Environment Variables](#environment-variables)
+13. [Scalability & Production Deployment](#scalability--production-deployment)
+14. [Future Improvements](#future-improvements)
+15. [Engineering Highlights](#engineering-highlights)
+16. [License & Author](#license--author)
 
 ---
 
-## 🚀 Microservices Architecture
+## Key Features
 
-The application is divided into independently deployable services, each responsible for a single business capability.
-
-Current services include:
-
-- API Gateway
-- Authentication Service
-- User Service
-- Chat Service
-- Shared Common Package
-
-Each service owns its own business logic and can be developed, deployed, and scaled independently.
-
----
-
-## 🌐 Centralized API Gateway
-
-The API Gateway acts as the single entry point for all client requests.
-
-Responsibilities include:
-
-- Authentication
-- Authorization
-- Request routing
-- Validation
-- Error handling
-- Logging
-- Middleware execution
-
-This simplifies frontend integration while keeping backend services focused solely on business logic.
+| Feature                           | Description                                                                                       |
+| --------------------------------- | ------------------------------------------------------------------------------------------------- |
+| 🚀 **Microservices Architecture** | Independently deployable services (Gateway, Auth, User, Chat), each owning its own logic and data |
+| 🌐 **Centralized API Gateway**    | Single entry point handling auth, routing, validation, and logging                                |
+| 📨 **Event-Driven Communication** | RabbitMQ decouples services for fault tolerance and background processing                         |
+| 🔐 **JWT Authentication**         | Stateless auth with registration, login, and protected routes                                     |
+| ⚡ **Redis Integration**          | In-memory store for sessions, presence, and cached data                                           |
+| 📦 **Shared Internal Package**    | Common auth, validation, error handling, and event contracts across services                      |
+| 🐳 **Dockerized Development**     | One-command startup for the full stack via Docker Compose                                         |
+| 🛡️ **Type-Safe Development**      | End-to-end TypeScript for safer refactoring and better DX                                         |
+| 📁 **pnpm Monorepo**              | Shared dependencies and centralized tooling across services                                       |
 
 ---
 
-## 📨 Event-Driven Communication
+## System Architecture
 
-BlipChat leverages RabbitMQ to enable asynchronous communication between services.
-
-Benefits include:
-
-- Loose coupling
-- Better fault tolerance
-- Independent service evolution
-- Background processing
-- Reliable message delivery
-
----
-
-## 🔐 JWT Authentication
-
-Authentication is implemented using stateless JSON Web Tokens (JWT).
-
-Features include:
-
-- User registration
-- Secure login
-- Protected routes
-- Token verification
-- Service authentication
-
----
-
-## ⚡ Redis Integration
-
-Redis is used as a high-performance in-memory data store to improve application responsiveness.
-
-Typical responsibilities include:
-
-- Session caching
-- User presence
-- Online status
-- Frequently accessed data
-- Temporary application state
-
----
-
-## 📦 Shared Internal Package
-
-Reusable functionality is extracted into a shared workspace package.
-
-Shared modules include:
-
-- Authentication utilities
-- Validation helpers
-- Error handling
-- Event definitions
-- Shared DTOs
-- Logging
-- Utility functions
-
-This reduces code duplication while maintaining consistency across services.
-
----
-
-## 🐳 Dockerized Development
-
-The application is fully containerized using Docker Compose.
-
-Infrastructure includes:
-
-- RabbitMQ
-- Redis
-- MongoDB
-- PostgreSQL
-- Backend services
-
-This provides a consistent development environment across all machines.
-
----
-
-## 🛡️ Type-Safe Development
-
-The project is built entirely with TypeScript, providing:
-
-- Compile-time type checking
-- Shared interfaces
-- Safer refactoring
-- Improved maintainability
-- Better developer experience
-
----
-
-## 📁 Monorepo Architecture
-
-BlipChat uses a pnpm workspace monorepo to organize services and shared packages.
-
-Advantages include:
-
-- Shared dependencies
-- Faster installations
-- Centralized tooling
-- Easier refactoring
-- Simplified dependency management
-
----
-
-# 3. System Architecture
-
-BlipChat follows a distributed microservices architecture where every client request enters through the API Gateway before being routed to the appropriate backend service.
+Every client request enters through the API Gateway, which authenticates and routes it to the appropriate service. Services communicate synchronously over HTTP for immediate needs and asynchronously via RabbitMQ for events. Each service owns its own database.
 
 ```text
                     ┌───────────────────────────┐
@@ -199,10 +64,7 @@ BlipChat follows a distributed microservices architecture where every client req
                                   ▼
                     ┌───────────────────────────┐
                     │        API Gateway        │
-                    │ Authentication            │
-                    │ Authorization             │
-                    │ Validation                │
-                    │ Routing                   │
+                    │ Auth · Validation · Route │
                     └─────────────┬─────────────┘
                  ┌────────────────┼────────────────┐
                  ▼                ▼                ▼
@@ -215,300 +77,395 @@ BlipChat follows a distributed microservices architecture where every client req
                  ┌─────────────┐ ┌──────────────┐
                  │  RabbitMQ   │ │    Redis     │
                  └─────────────┘ └──────────────┘
-                          │
-                          ▼
-                 Event-Driven Messaging
 
         Each service owns and manages its own database.
 ```
 
----
+### Architectural Principles
 
-## Architectural Principles
-
-### Domain Isolation
-
-Every microservice owns its own business logic, persistence layer, and internal implementation.
-
-This minimizes coupling while allowing services to evolve independently.
+- **Domain isolation** — each service owns its business logic and persistence layer, minimizing coupling.
+- **API Gateway pattern** — clients only ever talk to the gateway, never to services directly.
+- **Event-driven design** — services publish domain events instead of relying solely on synchronous calls, so consumers can react independently.
+- **Shared internal library** — cross-cutting concerns (auth middleware, event contracts, validation, logging) live in one package so every service follows the same standards.
 
 ---
 
-### API Gateway Pattern
+## Technology Stack
 
-Clients communicate exclusively with the API Gateway.
+| Category         | Technology                                  |
+| ---------------- | ------------------------------------------- |
+| Language         | TypeScript                                  |
+| Runtime          | Node.js                                     |
+| Framework        | Express.js                                  |
+| Package Manager  | pnpm Workspaces                             |
+| Authentication   | JWT                                         |
+| Messaging        | RabbitMQ                                    |
+| Cache            | Redis                                       |
+| Databases        | PostgreSQL & MongoDB (polyglot persistence) |
+| Containerization | Docker & Docker Compose                     |
+| Tooling          | ESLint, shared TS config packages           |
 
-```text
-Client
+**Why polyglot persistence?** Each service picks the database that fits its domain best — PostgreSQL for relational data (e.g. auth), MongoDB for flexible document storage (e.g. chat) — rather than forcing one engine on every workload.
 
-   │
+---
 
-   ▼
+## Monorepo Structure
 
-API Gateway
+BlipChat uses a **pnpm workspace monorepo**: one repository, independently deployable services, and shared tooling.
 
-   │
-
-   ▼
-
-Backend Services
+```
+BlipChat/
+│
+├── apps/
+│   ├── gateway-service/
+│   ├── auth-service/
+│   ├── user-service/
+│   └── chat-service/
+│
+├── packages/
+│   ├── common/
+│   ├── typescript-config/
+│   └── eslint-config/
+│
+├── docker-compose.yml
+├── pnpm-workspace.yaml
+├── package.json
+└── README.md
 ```
 
-Benefits include:
-
-- Single public endpoint
-- Centralized authentication
-- Simplified frontend integration
-- Unified error handling
-- Improved security
+**Why a monorepo?** Shared code without publishing packages, unified dependency management, consistent linting, atomic cross-service commits, and simplified local development — at the cost of a single repo to coordinate rather than many.
 
 ---
 
-### Event-Driven Design
+## Services & Packages
 
-Instead of relying solely on synchronous HTTP communication, services publish domain events through RabbitMQ.
+### API Gateway
 
-```text
-User Registers
+The single public-facing entry point. Handles JWT authentication, authorization, request validation, rate limiting, logging, and proxying to downstream services.
 
-      │
+| Endpoint prefix | Target Service         |
+| --------------- | ---------------------- |
+| `/api/auth/*`   | Authentication Service |
+| `/api/users/*`  | User Service           |
+| `/api/chat/*`   | Chat Service           |
 
-      ▼
+### Authentication Service
 
-Authentication Service
+System of record for identity: registration, login, password hashing, JWT issuance/validation, refresh tokens, and auth-related events.
 
-      │
+### User Service
 
-Publishes Event
+Owns profile data and user-facing business logic: profile updates, lookup, and search — deliberately independent from authentication.
 
-      ▼
+### Chat Service
 
-RabbitMQ
+Owns conversations, messages, history, and read/delivery status. Designed to scale independently as messaging volume grows, and to extend cleanly into WebSocket/Socket.IO-based realtime messaging later.
 
-      │
+### Shared Common Package
 
-      ▼
+Auth middleware, error classes, event contracts, shared DTOs, logger, validators, and utilities — consumed by every service so behavior stays consistent across the platform.
 
-Interested Services
+---
+
+## Authentication & Security
+
+Authentication is centralized in the Auth Service; authorization is enforced at the API Gateway, which every request must pass through.
+
+```mermaid
+sequenceDiagram
+Client->>API Gateway: Login Request
+API Gateway->>Auth Service: Forward Credentials
+Auth Service->>Database: Verify User
+Database-->>Auth Service: User Record
+Auth Service-->>API Gateway: JWT Access Token
+API Gateway-->>Client: Authentication Success
 ```
 
-This architecture enables services to react independently without creating direct dependencies.
+Once authenticated, every request carries a JWT that the gateway validates before forwarding it downstream:
+
+```mermaid
+sequenceDiagram
+Client->>API Gateway: Request + JWT
+API Gateway->>API Gateway: Validate Token
+API Gateway->>Target Service: Forward Request
+Target Service-->>API Gateway: Response
+API Gateway-->>Client: Success
+```
+
+**Why JWT?** Stateless verification means no server-side session store, which keeps horizontal scaling simple — any gateway instance can validate any request.
+
+**Defense in depth:**
+
+- Passwords are salted and hashed — never stored in plaintext.
+- Requests are validated (required fields, types, payload shape) before reaching business logic.
+- Internal services trust only the gateway, enforced via shared secrets, service tokens, or private container networking.
+- Production adds HTTPS/TLS termination, CORS policy, Helmet security headers, and rate limiting at the gateway.
+
+**Planned hardening:** refresh token rotation, OAuth 2.0 / OIDC, 2FA, secret management (Vault / AWS Secrets Manager), RBAC, and audit logging.
 
 ---
 
-### Shared Internal Library
+## Messaging Architecture (RabbitMQ)
 
-Cross-cutting concerns are centralized inside a reusable internal package.
+Synchronous HTTP works for request/response calls (login, profile lookups). For everything else, services publish domain events to RabbitMQ instead of calling each other directly — so a slow or unavailable consumer never blocks the publisher.
 
-Shared functionality includes:
+```mermaid
+flowchart LR
+A[Client] --> B[Auth Service]
+B --> C[RabbitMQ]
+C --> D[User Service]
+C --> E[Notification Service]
+```
 
-- Authentication middleware
-- Event contracts
-- Validation
-- Error handling
-- Logging
-- Utility functions
+Example: on registration, Auth Service publishes a `UserRegistered` event; interested services consume it independently, with no direct API dependency.
 
-This promotes consistency across every microservice.
+Every event follows a shared, strongly-typed contract defined in the common package:
 
----
+```typescript
+{
+  event: "UserRegistered",
+  userId: "...",
+  timestamp: "...",
+  payload: { ... }
+}
+```
 
-# 4. Technology Stack
-
-## Core Technologies
-
-| Category | Technology |
-|-----------|------------|
-| Language | TypeScript |
-| Runtime | Node.js |
-| Framework | Express.js |
-| Architecture | Microservices |
-| Package Manager | pnpm Workspaces |
-| API | REST |
-| Authentication | JWT |
-| Messaging | RabbitMQ |
-| Cache | Redis |
-| Databases | MongoDB & PostgreSQL |
-| Containerization | Docker |
-| Orchestration | Docker Compose |
+**Why this trade-off:** it costs eventual consistency and added operational complexity (a broker to run and monitor), in exchange for loose coupling, retryable delivery, independent scaling of consumers, and fault isolation when a downstream service is temporarily down.
 
 ---
 
-## Backend
+## Database Design
 
-BlipChat is built using **Node.js**, **Express**, and **TypeScript**, providing a highly concurrent runtime with strong type safety and an excellent developer experience.
+Each service owns and exclusively accesses its own database — no service reaches into another's schema.
+
+```text
+Auth Service   → Authentication DB (PostgreSQL)
+User Service   → User Database
+Chat Service   → Chat Database (MongoDB)
+```
+
+This trades the simplicity of one shared database for stronger boundaries: independent schema evolution, isolated failures, and the freedom to pick the right storage engine per domain.
+
+**Suggested domain models:**
+
+| Service | Core entities                                                   |
+| ------- | --------------------------------------------------------------- |
+| Auth    | Users, Tokens, Refresh Tokens, Password Resets                  |
+| User    | Profile, Settings, Avatar, Preferences                          |
+| Chat    | Conversations, Participants, Messages, Read Status, Attachments |
+
+**Scaling path:** read replicas, sharding, connection pooling, and query optimization can be applied per-service as traffic grows, without touching unrelated services.
 
 ---
 
-## Messaging
+## Redis Architecture
 
-RabbitMQ powers asynchronous communication between services.
+Redis handles data where millisecond access matters more than durability guarantees:
 
-Typical use cases include:
-
-- Domain events
-- Background jobs
-- Service notifications
-- Workflow orchestration
-
----
-
-## Caching
-
-Redis provides an in-memory cache for frequently accessed or temporary data.
-
-Examples include:
-
-- User presence
-- Session storage
-- Cached queries
+- Session / presence tracking (online users)
+- Auth cache to reduce repeated database lookups
+- Rate limiting counters
 - Temporary application state
 
----
+```text
+Request → Redis (hit?) → Return
+              │
+             (miss)
+              ▼
+          Database → Update Cache
+```
 
-## Databases
-
-BlipChat demonstrates a **polyglot persistence** approach by allowing services to choose the database technology best suited to their domain.
-
-Benefits include:
-
-- Better performance
-- Technology flexibility
-- Service independence
-- Optimized data models
+**Roadmap:** pub/sub messaging, distributed locks, and analytics counters are natural extensions of the existing Redis layer.
 
 ---
 
-## Infrastructure
+## API Documentation
 
-Docker Compose orchestrates the complete development environment by coordinating containers, networking, and persistent storage.
+**Base URL:** `http://localhost:3000/api`
 
----
+| Method | Endpoint                                       | Description                                         |
+| ------ | ---------------------------------------------- | --------------------------------------------------- |
+| POST   | `/auth/register`                               | Create a new user account                           |
+| POST   | `/auth/login`                                  | Authenticate and receive a JWT                      |
+| GET    | `/auth/verify`                                 | Validate an existing JWT                            |
+| GET    | `/users/profile`                               | Get the authenticated user's profile                |
+| PUT    | `/users/profile`                               | Update user information                             |
+| GET    | `/users/search`                                | Search users                                        |
+| POST   | `/chat/conversations`                          | Create a conversation                               |
+| GET    | `/chat/conversations`                          | List the user's conversations                       |
+| POST   | `/chat/messages`                               | Send a message (persists + publishes `MessageSent`) |
+| GET    | `/chat/conversations/:conversationId/messages` | Paginated message history                           |
 
-## Developer Tooling
+Protected routes require:
 
-The project also leverages modern development tooling to improve maintainability and consistency.
+```http
+Authorization: Bearer <access_token>
+```
 
-- TypeScript
-- pnpm Workspaces
-- Docker
-- ESLint
-- Shared configuration packages
+**Standard response shapes:**
 
----
+```json
+// Success
+{ "success": true, "message": "Operation completed successfully", "data": {} }
 
-# 5. Architecture Decisions
-
-BlipChat was intentionally designed using production-oriented architectural patterns rather than traditional monolithic design.
-
-Every major technology choice supports scalability, maintainability, and long-term system evolution.
-
----
-
-## Why Microservices?
-
-Instead of placing every feature inside a single application, BlipChat separates responsibilities into independently deployable services.
-
-### Benefits
-
-- Independent deployments
-- Smaller codebases
-- Fault isolation
-- Easier testing
-- Better scalability
-- Improved maintainability
-
-Each service focuses on a single business domain.
+// Error
+{ "success": false, "message": "Unauthorized", "statusCode": 401 }
+```
 
 ---
 
-## Why an API Gateway?
+## Getting Started
 
-The API Gateway provides a unified entry point for all client applications.
+### Prerequisites
 
-Its responsibilities include:
+Node.js (LTS), pnpm, Docker, Docker Compose, Git.
 
-- Authentication
-- Authorization
-- Request validation
-- Routing
-- Middleware execution
-- Error handling
-- Logging
+### Setup
 
-This keeps backend services lightweight while simplifying frontend integration.
+```bash
+# 1. Clone and install
+git clone https://github.com/Ayyah-Coded/blipchat.git
+cd blipchat
+pnpm install
 
----
+# 2. Configure environment variables (see below) for each service
 
-## Why RabbitMQ?
+# 3. Start infrastructure (RabbitMQ, Redis, MongoDB, PostgreSQL)
+docker compose up -d
 
-Asynchronous messaging enables services to communicate without directly depending on one another.
+# 4. Start all services
+pnpm dev
+```
 
-### Advantages
+### Verify it's running
 
-- Loose coupling
-- Reliable message delivery
-- Retry support
-- Background processing
-- Independent service evolution
-- Improved resilience
+| Service        | Default Port |
+| -------------- | -----------: |
+| Gateway        |         3000 |
+| Authentication |         3001 |
+| User           |         3002 |
+| Chat           |         3003 |
 
-This architecture is better suited for distributed systems than relying exclusively on synchronous HTTP requests.
+> Replace with the actual ports configured in your `.env` files.
 
----
+### Common commands
 
-## Why Redis?
+```bash
+pnpm dev      # run all services locally
+pnpm build    # compile every service
+pnpm lint     # lint the monorepo
+pnpm test     # run tests
 
-Memory operations are significantly faster than database queries.
+docker compose up --build   # rebuild and run production containers
+docker compose down         # stop everything
+```
 
-Redis improves overall system responsiveness by storing frequently accessed or short-lived data.
-
-Potential use cases include:
-
-- Session management
-- Presence tracking
-- Online users
-- Cached responses
-- Rate limiting
-
----
-
-## Why a Shared Common Package?
-
-Many backend concerns are common across services.
-
-Instead of duplicating this logic, BlipChat centralizes reusable components into a shared internal package.
-
-Examples include:
-
-- Authentication middleware
-- Validation schemas
-- Event contracts
-- Shared DTOs
-- Error handling
-- Logging utilities
-- Helper functions
-
-This ensures consistency while reducing maintenance costs.
+Docker Compose creates a private network so services reach each other by container name (e.g. `auth-service`, `rabbitmq`) instead of IP address, and named volumes persist PostgreSQL/MongoDB/RabbitMQ data across restarts.
 
 ---
 
-## Why Database per Service?
+## Environment Variables
 
-Each microservice owns and manages its own database.
+Each service keeps its own `.env` for independence. Never commit real `.env` files — commit `.env.example` and inject secrets at runtime.
 
-This architectural pattern provides:
+**API Gateway**
 
-- Better isolation
-- Independent schema evolution
-- Stronger service boundaries
-- Improved scalability
-- Technology flexibility
+```env
+PORT=3000
+AUTH_SERVICE_URL=
+USER_SERVICE_URL=
+CHAT_SERVICE_URL=
+```
 
-No service directly accesses another service's database.
+**Authentication Service**
+
+```env
+PORT=3001
+JWT_SECRET=
+JWT_EXPIRES_IN=
+DATABASE_URL=
+RABBITMQ_URL=
+REDIS_URL=
+```
+
+**User Service**
+
+```env
+PORT=3002
+DATABASE_URL=
+RABBITMQ_URL=
+REDIS_URL=
+```
+
+**Chat Service**
+
+```env
+PORT=3003
+DATABASE_URL=
+RABBITMQ_URL=
+REDIS_URL=
+```
 
 ---
 
-## Engineering Philosophy
+## Scalability & Production Deployment
 
-BlipChat embraces modern distributed system principles, emphasizing modularity, scalability, and resilience. By combining microservices, asynchronous messaging, shared libraries, and independent data ownership, the platform demonstrates backend engineering practices that extend far beyond traditional CRUD application development.
+Because services are stateless (JWT-based auth, no sticky sessions), each can be replicated independently behind a load balancer — and scaled to match its actual workload rather than a one-size-fits-all instance count:
+
+```text
+Gateway × 2   Auth × 2   User × 1   Chat × 8
+```
+
+**Production topology** adds a reverse proxy (NGINX) for TLS termination and load balancing in front of multiple gateway instances, with backend services and data stores kept on a private internal network:
+
+```text
+Internet → NGINX → Load Balancer → API Gateway (×N)
+                                        │
+                          Auth · User · Chat (private network)
+                                        │
+                         PostgreSQL · MongoDB · RabbitMQ · Redis
+```
+
+**Production checklist:** HTTPS enforced, secrets kept out of source control, rate limiting configured, health checks (`GET /health`) on every service, logging/monitoring in place, automated backups, and optimized indexes.
+
+**Deployment flow:** build → test → build Docker images → push to registry → deploy → health-check → monitor.
+
+---
+
+## Future Improvements
+
+- **Realtime:** WebSockets/Socket.IO for live messaging, typing indicators, and presence
+- **Media sharing:** file/image/audio attachments via S3 or Cloudinary
+- **Group conversations:** roles, permissions, invitation links
+- **Push notifications:** FCM, APNs, Web Push
+- **Search:** Elasticsearch/OpenSearch for messages, conversations, and users
+- **Observability:** Prometheus, Grafana, Jaeger/OpenTelemetry, centralized logging
+- **CI/CD:** automated testing, security scanning, and image publishing (GitHub Actions/GitLab CI)
+- **Orchestration:** migrate from Docker Compose to Kubernetes for auto-healing, rolling updates, and autoscaling
+
+---
+
+## Engineering Highlights
+
+This project demonstrates practical experience with:
+
+Microservices Architecture · Distributed Systems · Event-Driven Design · REST API Design · JWT Authentication & Authorization · RabbitMQ · Redis · Docker & Docker Compose · TypeScript · Express.js · MongoDB · PostgreSQL · Database-per-Service · Polyglot Persistence · pnpm Workspaces · System Scalability
+
+---
+
+## License & Author
+
+**License:** MIT — see the `LICENSE` file for details.
+
+**Author:** Yahaya Hayatullahi
+Full-Stack Software Engineer focused on scalable backend systems, distributed architectures, and modern web technologies.
+
+- **GitHub:** `https://github.com/Ayyah-Coded`
+- **LinkedIn:** `https://linkedin.com/in/<your-profile>`
+- **Portfolio:** `https://<your-portfolio>`
+
+---
+
+<p align="center">
+  Built with TypeScript, Node.js, Docker, RabbitMQ, Redis, MongoDB, PostgreSQL, and a microservices architecture.
+</p>
