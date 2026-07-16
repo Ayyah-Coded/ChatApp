@@ -1,8 +1,6 @@
-import { z } from "zod";
-import { HttpError } from "../errors/http-error";
-
 import type { Request, Response, NextFunction } from "express";
-import {ZodError} from "zod";
+
+import { ZodError } from "zod";
 import type { ZodObject, ZodType } from "zod";
 
 type Schema = ZodObject | ZodType;

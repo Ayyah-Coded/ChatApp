@@ -13,6 +13,6 @@ export interface OutboundEvent<TType extends string, TPayload extends EventPaylo
     metadata?: EventMetadata;
 }
 export interface InboundEvent<TType extends string, TPayload extends EventPayload> extends DomainEvent<TType, TPayload> {
-    metadata?: EventMetadata;
+    metadata: EventMetadata;
 }
 //# sourceMappingURL=event-types.d.ts.map

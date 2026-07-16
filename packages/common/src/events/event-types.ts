@@ -19,5 +19,5 @@ export interface OutboundEvent<TType extends string, TPayload extends EventPaylo
 }
 
 export interface InboundEvent<TType extends string, TPayload extends EventPayload> extends DomainEvent<TType, TPayload> {
-  metadata?: EventMetadata
+  metadata: EventMetadata
 }

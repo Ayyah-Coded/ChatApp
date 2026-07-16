@@ -18,6 +18,20 @@ services:
       start_period: 30s
     restart: unless-stopped
 
+  redis:
+    image: redis:7
+    container_name: blipchat-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - blipchat-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   auth-database:
     image: mysql:8.0
     container_name: blipchat-auth-db
@@ -38,20 +52,6 @@ services:
       timeout: 5s
       retries: 5  
     restart: unless-stopped    
-
-  redis:
-    image: redis:7
-    container_name: blipchat-redis
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    networks:
-      - blipchat-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
 
 
   chat-database:
@@ -96,7 +96,10 @@ services:
   auth-service:
     build:
       context: .
-      dockerfile: services/auth-service/Dockerfile
+      dockerfile: Dockerfile
+      args:
+        SERVICE: auth-service
+        PORT: 9501
     container_name: blipchat-auth-service
     ports:
       - "${AUTH_SERVICE_PORT:-9501}:9501"
@@ -110,6 +113,7 @@ services:
       JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-30d}
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@blipchat-rabbitmq:5672
       INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:9502,http://localhost:9503,http://localhost:9504}
     depends_on:
       auth-database:
         condition: service_healthy
@@ -117,10 +121,10 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9501/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
     restart: unless-stopped  
     networks:
       - blipchat-network
@@ -129,7 +133,10 @@ services:
   chat-service:
     build:
       context: .
-      dockerfile: services/chat-service/Dockerfile
+      dockerfile: Dockerfile
+      args:
+        SERVICE: chat-service
+        PORT: 9504
     container_name: blipchat-chat-service
     ports:
       - "${CHAT_SERVICE_PORT:-9504}:9504"
@@ -141,6 +148,7 @@ services:
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@blipchat-rabbitmq:5672
       JWT_SECRET: ${JWT_SECRET}
       INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:9501,http://localhost:9503,http://localhost:9504}
     depends_on:
       chat-database:
         condition: service_healthy
@@ -152,17 +160,20 @@ services:
       - blipchat-network
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9504/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
     restart: unless-stopped
   
   
   gateway-service:
     build:
       context: .
-      dockerfile: services/gateway-service/Dockerfile
+      dockerfile: Dockerfile
+      args:
+        SERVICE: gateway-service
+        PORT: 9502
     container_name: blipchat-gateway-service
     ports:
       - "${GATEWAY_PORT:-9502}:9502"
@@ -174,13 +185,11 @@ services:
       USER_SERVICE_URL: http://user-service:9503
       JWT_SECRET: ${JWT_SECRET}
       INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:9501,http://localhost:9503,http://localhost:9504}
     depends_on:
-      auth-service:
-        condition: service_healthy
-      chat-service:
-        condition: service_healthy
-      user-service:
-        condition: service_healthy
+      - auth-service
+      - chat-service
+      - user-service
     networks:
       - blipchat-network
     healthcheck:
@@ -195,7 +204,10 @@ services:
   user-service:
     build:
       context: .
-      dockerfile: services/user-service/Dockerfile
+      dockerfile: Dockerfile
+      args:
+        SERVICE: user-service
+        PORT: 9503
     container_name: blipchat-user-service
     ports:
       - "${USER_SERVICE_PORT:-9503}:9503"
@@ -205,6 +217,7 @@ services:
       USER_DB_URL: postgres://${USER_DB_USER:-blipchat_user}:${USER_DB_PASSWORD:-blipchat_password}@user-database:5432/${USER_DB_NAME:-blipchat_user_service}
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@blipchat-rabbitmq:5672
       INTERNAL_API_TOKEN: ${INTERNAL_API_TOKEN}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:9501,http://localhost:9502,http://localhost:9504}
     depends_on:
       user-database:
         condition: service_healthy
@@ -212,10 +225,10 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9503/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
     restart: unless-stopped  
     networks:
       - blipchat-network
